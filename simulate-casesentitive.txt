@@ -1,0 +1,79 @@
+Simulating case insensitivity in a case sensitive database
+It is often necessary to simulate case insensitivity in a case sensitive database. The example below displays how you can achieve that.
+
+Use CS_AS_KS_WS
+go
+declare @var1 varchar(10)
+declare @var2 varchar(10)
+set @var1 ='A'
+set @var2 ='a'
+if upper(@var1) = upper(@var2)
+print "A and a are treated same"
+else
+print "A and a are not same"
+go
+Use CS_AS_KS_WS
+go
+declare @var1 varchar(10)
+declare @var2 varchar(10)
+set @var1 ='Good'
+set @var2 ='gooD'
+if upper(@var1) = upper(@var2 )
+print "Good and gooD are treated same"
+else
+print "Good and gooD are not treated same"
+Simulating Accent sensitivity in a Accent insensitive database
+It is often necessary to simulate case sensitivity in a case insensitive database:
+
+Use CI_AI_KS
+go
+declare @var1 varchar(10)
+declare @var2 varchar(10)
+set @var1 ='A'
+set @var2 = 'á'
+if ASCII(@var1) = ASCII(@var2)
+print "A and á are treated same"
+else
+print "A and á are not treated same"
+Again, the function ASCII cannot be used for words. In order to achieve the same functionality of simulating case sensitiveness, we can use the varbinary data type:
+
+Use CI_AI_KS
+go
+declare @var1 varchar(10)
+declare @var2 varchar(10)
+set @var1 ='Gold'
+set @var2 ='Góld'
+if cast(@var1 as varbinary) = cast(@var2 as varbinary) 
+print " Gold  and Góld  are treated same"
+else
+print " Gold  and Góld  are not treated same"
+Change the collation
+In SQL Server 7.0, Collation can be setup only on the server level during installation. In order to change the collation, you have to rebuild the master. This is located in the Program Files\Microsoft SQL Server\80\Tools\Binn directory.
+
+In SQL Sever 2000, you can change collation on the database level and column level just by using alter statements.
+
+Create database testNorwegian collate Danish_Norwegian_CI_AI_KS
+go
+Alter database testNorwegian collate Danish_Norwegian_CI_AI
+go
+
+Create table Mytable (
+[colu] char(10) COLLATE Albanian_CI_AI_KS_WS NULL,
+[Maydate] [char] (8) COLLATE Korean_Wansung_Unicode_CS_AS_KS NOT NULL ,
+[Risk_Rating] [char] (2) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL 
+)
+go
+Alter table Mytable alter column [colu] char(10) COLLATE Korean_Wansung_Unicode_CS_AS_KS NULL
+go
+Find the collation of the current server
+select SERVERPROPERTY ('collation')
+Find the collation of a particular database
+select convert(sysname,DatabasePropertyEx('CS_AS_KS_WS','Collation'))
+Find the collation of the current database
+select convert(sysname,DatabasePropertyEx(db_name(),'Collation'))
+Find collation of all columns in a table
+select name, collation from syscolumns where [id]=object_id('Mytable')
+Find all collation available in SQL Server
+select * from ::fn_helpcollations()
+Conclusion
+This article explains the basic concept of collation and its uses. You can create functions for simulating accent insensitive in an accent sensitive database by mapping a for á. Kana sensitivity and Width sensitivity are focused mainly on Asian languages.
