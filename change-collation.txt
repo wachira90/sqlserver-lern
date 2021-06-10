@@ -1,0 +1,38 @@
+การ alter Collation in Sqlserver( Database & Table)
+
+พอดีว่าผมมีโอกาสในการ สร้างฐานข้อมูลผ่าน Cpanel แล้ว ฐานข้อมูลที่สร้างออกมา ดัน set Collation เป็น Thai_CS_AS 
+ซึ่งทำให้ผมมีปัญหาเกี่ยวกับการ search ข้อมูลใน ฐานข้อมูล เพราะว่า Thai_CS_AS ในการ Search จะFix ตัวอักษรเล็กใหญ่ในการ search 
+ซึ่ง module search ที่ผมต้องการ ไม่สนใจตัวเล็กตัวใหญ่ของอักษร ก็เลยต้องหาวิธีการแก้ไข Colation ของ DataBase และ Fieldต่างๆๆ
+
+โชคดีไปเจอเว็บนี้เข้า
+http://www.databasejournal.com/features/mssql/article.php/10894_3302341_2/SQL-Server-and-Collation.htm
+ลองแก้ไขแล้ว work...
+
+แก้ไข Collation Dabase
+Alter database [Database name] collate Thai_CI_AS
+
+แก้ไข Collation Table
+Alter table [TableName] alter column [ColumnName] nvarchar(max) COLLATE Thai_CI_AS NULL
+
+ลองเอาไปใช้ดูนะครับ น่าจะเป็นประโยชน์กับหลายๆๆคน
+
+หากว่าท่านไม่สามารถทำการ แก้ไข collation ได้ และติดปัญหาว่า
+The database could not be exclusively locked to perform the operation.
+
+ให้ทำดังนี้
+
+1. คลิกขวาที่ ชื่อdatabase >> properties >> Options >>
+- Set the restrict access of the database to SINGLE_USER (note the you might kill all the active sessions) คลิก OK
+
+2. คลิกขวาที่ ชื่อdatabase >> properties >> Options >>
+-Change the collation of database to whatever you want it คลิก OK
+
+3.คลิกขวาที่ ชื่อdatabase >> properties >> Options >>
+- And switch back the restrict access of the database to MULTI_USER คลิก OK
+หรือท่านจะรันquery ก้ได้ดังนี้
+
+ALTER DATABASE [database_name] SET SINGLE_USER WITH ROLLBACK IMMEDIATE
+ALTER DATABASE [database_name] COLLATE [desired collation]
+ALTER DATABASE [database_name] SET MULTI_USER
+
+แค่นี้ก็เป็นอันเสร็จเรียบร้อย
